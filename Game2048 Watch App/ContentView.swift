@@ -62,7 +62,7 @@ struct ContentView: View {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 3)
                                         .fill(colors[grid[row][col]] ?? colors[0]!)
-                                        .frame(width: (geometry.size.width - 24) / 4, height: (geometry.size.width - 24) / 4)
+                                        .frame(width: (geometry.size.width * 0.8) / 4, height: (geometry.size.width * 0.8) / 4)
                                     
                                     if grid[row][col] > 0 {
                                         Text("\(grid[row][col])")
@@ -364,4 +364,3 @@ struct ContentView: View {
         }
     }
 }
-
