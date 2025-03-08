@@ -13,20 +13,22 @@ struct ContentView: View {
     @State private var gameOver = false
     @State private var won = false
     
-    // 官方 2048 配色
-    let colors: [Int: Color] = [
-        0: Color(red: 0.8, green: 0.8, blue: 0.8, opacity: 0.35),
-        2: Color(red: 0.93, green: 0.89, blue: 0.85),
-        4: Color(red: 0.93, green: 0.88, blue: 0.78),
-        8: Color(red: 0.95, green: 0.69, blue: 0.47),
-        16: Color(red: 0.96, green: 0.58, blue: 0.39),
-        32: Color(red: 0.96, green: 0.49, blue: 0.37),
-        64: Color(red: 0.96, green: 0.37, blue: 0.24),
-        128: Color(red: 0.93, green: 0.81, blue: 0.45),
-        256: Color(red: 0.93, green: 0.8, blue: 0.38),
-        512: Color(red: 0.93, green: 0.78, blue: 0.31),
-        1024: Color(red: 0.93, green: 0.77, blue: 0.25),
-        2048: Color(red: 0.93, green: 0.76, blue: 0.18)
+    // 官方 2048 配色（增加4096和8192的顏色）
+        let colors: [Int: Color] = [
+            0: Color(red: 0.8, green: 0.8, blue: 0.8, opacity: 0.35),
+            2: Color(red: 0.93, green: 0.89, blue: 0.85),
+            4: Color(red: 0.93, green: 0.88, blue: 0.78),
+            8: Color(red: 0.95, green: 0.69, blue: 0.47),
+            16: Color(red: 0.96, green: 0.58, blue: 0.39),
+            32: Color(red: 0.96, green: 0.49, blue: 0.37),
+            64: Color(red: 0.96, green: 0.37, blue: 0.24),
+            128: Color(red: 0.93, green: 0.81, blue: 0.45),
+            256: Color(red: 0.93, green: 0.8, blue: 0.38),
+            512: Color(red: 0.93, green: 0.78, blue: 0.31),
+            1024: Color(red: 0.93, green: 0.77, blue: 0.25),
+            2048: Color(red: 0.93, green: 0.76, blue: 0.18),
+            4096: Color(red: 0.77, green: 0.82, blue: 0.28), // 黃綠色，橙黃到綠色的過渡
+            8192: Color(red: 0.62, green: 0.87, blue: 0.38) // 鮮綠色，對比於橙黃色系列
     ]
     
     // 文字顏色
@@ -89,6 +91,37 @@ struct ContentView: View {
                     }
                 }
                 .padding(.top, 3)
+            }
+            .sheet(isPresented: $gameOver) {
+                VStack {
+                    Text("遊戲結束")
+                        .font(.title2)
+                        .bold()
+                        .padding()
+                    Text("你的分數: \(score)")
+                    Button("重新開始") {
+                        resetGame()
+                    }
+                    .padding()
+                }
+            }
+
+            .sheet(isPresented: $won) {
+                VStack {
+                    Text("你贏了!")
+                        .font(.title2)
+                        .bold()
+                        .padding()
+                    Text("你的分數: \(score)")
+                    Button("繼續遊戲") {
+                        won = false
+                    }
+                    .padding()
+                    Button("重新開始") {
+                        resetGame()
+                    }
+                    .padding()
+                }
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center)
             .gesture(DragGesture(minimumDistance: 10, coordinateSpace: .local)
@@ -167,40 +200,40 @@ struct ContentView: View {
     }
     
     func checkGameStatus() {
+        print("檢查遊戲狀態開始")
+
         // 檢查是否獲勝
         for row in grid {
             for value in row {
-                if value == 2048 && !won {
+                if value == 2048 {
+                    print("遊戲勝利")
                     won = true
                     return
                 }
             }
         }
         
-        // 檢查是否還有空格
+        // 檢查是否有空格，若有則遊戲尚未結束
         for row in grid {
             if row.contains(0) {
+                print("尚有空格，遊戲繼續")
                 return
             }
         }
         
-        // 檢查是否還能合併
+        // 檢查是否還能合併（左右與上下）
         for i in 0..<4 {
-            for j in 0..<3 {
-                if grid[i][j] == grid[i][j+1] {
+            for j in 0..<4 {
+                if (j < 3 && grid[i][j] == grid[i][j + 1]) || // 檢查左右
+                   (i < 3 && grid[i][j] == grid[i + 1][j]) { // 檢查上下
+                    print("還可以合併，遊戲繼續")
                     return
                 }
             }
         }
         
-        for j in 0..<4 {
-            for i in 0..<3 {
-                if grid[i][j] == grid[i+1][j] {
-                    return
-                }
-            }
-        }
-        
+        // 如果沒有空格，且無法合併，則遊戲結束
+        print("遊戲結束")
         gameOver = true
     }
     
