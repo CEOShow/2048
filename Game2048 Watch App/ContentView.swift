@@ -55,6 +55,7 @@ struct ContentView: View {
     @State private var score = 0
     @State private var gameOver = false
     @State private var won = false
+    @State private var hasWonBefore = false  // 新增：追蹤是否已經贏過
     @State private var movingTiles: [TileMove] = []
     @State private var isAnimating = false
 
@@ -175,7 +176,10 @@ struct ContentView: View {
                         .padding()
                     Text("分數: \(score)")
                         .font(.system(size: 12))
-                    Button("繼續") { won = false }
+                    Button("繼續") {
+                        hasWonBefore = true  // 修改：設定已經贏過的標記
+                        won = false
+                    }
                         .font(.system(size: 12))
                         .padding()
                     Button("重玩") { resetGame() }
@@ -196,6 +200,7 @@ struct ContentView: View {
         score = 0
         gameOver = false
         won = false
+        hasWonBefore = false  // 修改：重置已贏過的標記
         movingTiles = []
         addNewTile()
         addNewTile()
@@ -218,10 +223,13 @@ struct ContentView: View {
     }
 
     func checkGameStatus() {
-        for row in grid {
-            if row.contains(2048) {
-                won = true
-                return
+        // 修改：只有在還沒贏過的情況下才檢查勝利條件
+        if !hasWonBefore {
+            for row in grid {
+                if row.contains(8) {
+                    won = true
+                    return
+                }
             }
         }
         
