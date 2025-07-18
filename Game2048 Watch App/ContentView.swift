@@ -226,7 +226,7 @@ struct ContentView: View {
         // 修改：只有在還沒贏過的情況下才檢查勝利條件
         if !hasWonBefore {
             for row in grid {
-                if row.contains(8) {
+                if row.contains(2048) {
                     won = true
                     return
                 }
